@@ -1,0 +1,7 @@
+RewriteEngine on
+RewriteBase /yams
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+
+RewriteRule ^(.*)$ index.php?slug=$1 [L,QSA]
