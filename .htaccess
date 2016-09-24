@@ -1,5 +1,5 @@
 RewriteEngine on
-RewriteBase /yams
+RewriteBase /_schuetz/yams
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f

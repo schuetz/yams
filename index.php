@@ -4,11 +4,9 @@ include_once('var/meta.inc');
 include_once('php/xssclean.php');
 include_once('php/yams.php');
 $site = new YAMS();
-$page = 'pages/'.$site->lang['active'].'/'.$site->page.'.php';
 
-if (!file_exists($page)) {
+if ($site->page['notfound']) {
 	header('HTTP/1.1 404 Not Found');
-	$notfound = true;
 }
 
 ?>
@@ -20,7 +18,7 @@ if (!file_exists($page)) {
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="description" content="<?php echo $meta['description'][$site->lang['active']] ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo $site->title ?> | <?php echo $meta['title'][$site->lang['active']] ?></title>
+	<title><?php echo $site->page['title'] ?> | <?php echo $meta['title'][$site->lang['active']] ?></title>
 	<base href="<?php echo $site->baseurl ?>">
 	<link rel="stylesheet" href="css/normalize.min.css">
 </head>
@@ -36,13 +34,7 @@ if (!file_exists($page)) {
 	</nav>
 		
 	<article>
-		<?php
-		if (!isset($notfound)) {
-			include_once($page);
-		} else {
-			echo '<h1>404</h1>';
-		}
-		?>
+		<?php include_once($site->page['template']) ?>
 	</article>
 	
 	<footer>
