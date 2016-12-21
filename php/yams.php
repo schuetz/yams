@@ -145,19 +145,19 @@ class YAMS {
 	*/	
 	public function getMenuList($menu, $class = null) {
 		
-		$nav = (!$class) ? '<menu>' : '<menu class="'.$class.'">';
+		$nav = (!$class) ? '<ul>' : '<ul class="'.$class.'">';
 		
 		if ($menu !== 'lang') {
 			foreach ($this->nav['xml']->{$this->lang['active']}->$menu->children() as $navitem) {
 				$attr = $this->getMenuItemAttributes($navitem);
 				$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['label'].'</a>';
 				if ($navitem->count()) {
-					$nav .= '<menu>';
+					$nav .= '<ul>';
 					foreach ($navitem->children() as $navitem) {
 						$attr = $this->getMenuItemAttributes($navitem);
 						$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['label'].'</a></li>';
 					}
-					$nav .= '</menu>';
+					$nav .= '</ul>';
 				}
 				$nav .= '</li>';
 				
@@ -177,7 +177,7 @@ class YAMS {
 			}
 		}
 		
-		$nav .= '</menu>';
+		$nav .= '</ul>';
 		
 		return $nav;
 		
