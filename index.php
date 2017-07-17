@@ -29,8 +29,8 @@ if ($site->page['notfound']) {
 	</header>
 	
 	<nav>
-		<?php echo $site->getMenuList('main'); ?>
-		<?php if (count($site->lang['list']) > 1) echo $site->getMenuList('lang'); ?>
+		<?php echo $site->getMenuListHtml('main'); ?>
+		<?php if (count($site->lang['list']) > 1) echo $site->getMenuListHtml('lang'); ?>
 	</nav>
 		
 	<article>
@@ -38,7 +38,7 @@ if ($site->page['notfound']) {
 	</article>
 	
 	<footer>
-		<?php echo $site->getMenuList('footer'); ?>
+		<?php echo $site->getMenuListHtml('footer'); ?>
 	</footer>
 		
 </body>

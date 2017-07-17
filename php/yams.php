@@ -116,15 +116,16 @@ class YAMS {
 	*/
 	function getMenuItemAttributes($navitem, $lang = null) {
 		$label = trim($navitem->__toString());
+		$href = $navitem['href']->__toString();
 		if (count($this->lang['list']) > 1 && !$lang) {
-			$href = $this->lang['active'].'/'.$navitem['href'];
+			$href = $this->lang['active'].'/'.$href;
 		} else if (!empty($lang)) {
-			$href = $lang.'/'.$navitem['href'];
+			$href = $lang.'/'.$href;
 			$label = $lang;
 		} else {
-			$href = $navitem['href'];
+			$href = $href;
 		}
-		$active = ($navitem['href'] == $this->page['slug']) ? true : false;
+		$active = ($href == $this->page['slug']) ? true : false;
 		if ($active) {
 			$this->page['id'] = intval($navitem['id']->__toString());
 			$class = ' class="active"';
@@ -134,8 +135,54 @@ class YAMS {
 		return [
 			'label' => $label,
 			'href' => $href,
+			'active' => $active,
 			'class' => $class
 		];
+	}
+	
+	/*
+	* @param string $menu
+	* @return array
+	*/	
+	public function getMenuList($menu) {
+		
+		$nav = [];
+		$i = 0;
+		
+		if ($menu !== 'lang') {
+			foreach ($this->nav['xml']->{$this->lang['active']}->$menu->children() as $navitem) {
+				$attr = $this->getMenuItemAttributes($navitem);
+				$nav[$i] = $attr;
+				if ($navitem->count()) {
+					$nav[$i]['sub'] = [];
+					foreach ($navitem->children() as $navitem) {
+						$attr = $this->getMenuItemAttributes($navitem);
+						$nav[$i]['sub'][] = $attr;
+					}
+				}
+				$i++;
+			}
+		} else if ($menu === 'lang') {
+			foreach ($this->lang['list'] as $lang) {
+				if ($this->page['id'] !== 0) {
+					$navitem = $this->nav['xml']->xpath('//'.$lang.'//item[@id="'.strval($this->page['id']).'"]');
+					if (!empty($navitem)) {
+						$attr = $this->getMenuItemAttributes($navitem[0], $lang);
+						$nav[$i] = $attr;
+					}
+				} else {
+					$active = ($lang === $this->lang['active']) ? true : false;
+					$nav[$i] = [
+						'label' => $lang,
+						'href' => $lang,
+						'active' => $active
+					];
+				}
+			}
+		}
+		
+		return $nav;
+		
 	}
 	
 	/*
@@ -143,7 +190,7 @@ class YAMS {
 	* @param string $class
 	* @return string
 	*/	
-	public function getMenuList($menu, $class = null) {
+	public function getMenuListHtml($menu, $class = null) {
 		
 		$nav = (!$class) ? '<ul>' : '<ul class="'.$class.'">';
 		
