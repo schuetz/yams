@@ -89,9 +89,12 @@ class YAMS {
 			$this->page['template'] = $this->template['path'].$this->lang['active'].'/404'.$this->template['suffix'];
 		}
 		
-		$inNav = $this->nav['xml']->xpath('//item[@href="'.$this->page['slug'].'"]');
-		if (count($inNav) > 0 && !$this->page['notfound']) {
-			$this->page['title'] = trim($inNav[0]->__toString());
+		$navitem = $this->nav['xml']->xpath('//item[@href="'.$this->page['slug'].'"]');
+		if (count($navitem) > 0 && !$this->page['notfound']) {
+			$page_attributes = $this->getMenuItemAttributes($navitem[0]);
+			foreach ($page_attributes as $key => $value) {
+				$this->page[$key] = $value;
+			}
 		}
 		
 	}
@@ -115,25 +118,31 @@ class YAMS {
 	* @return array
 	*/
 	function getMenuItemAttributes($navitem, $lang = null) {
-		$label = trim($navitem->__toString());
+		$description = ($navitem != '') ? trim($navitem->__toString()) : '';
 		$href = $navitem['href']->__toString();
+		$id = intval($navitem['id']->__toString());
+		$title = $navitem['title']->__toString();
+		$time = ($navitem['time']) ? $navitem['time']->__toString() : '';
 		if (count($this->lang['list']) > 1 && !$lang) {
 			$href = $this->lang['active'].'/'.$href;
 		} else if (!empty($lang)) {
 			$href = $lang.'/'.$href;
-			$label = $lang;
+			$description = $lang;
 		} else {
 			$href = $href;
 		}
 		$active = ($href == $this->page['slug']) ? true : false;
 		if ($active) {
-			$this->page['id'] = intval($navitem['id']->__toString());
+			$this->page['id'] = $id;
 			$class = ' class="active"';
 		} else {
 			$class = '';
 		}
 		return [
-			'label' => $label,
+			'id' => $id,
+			'title' => $title,
+			'description' => $description,
+			'time' => $time,
 			'href' => $href,
 			'active' => $active,
 			'class' => $class
@@ -147,20 +156,18 @@ class YAMS {
 	public function getMenuList($menu) {
 		
 		$nav = [];
-		$i = 0;
 		
 		if ($menu !== 'lang') {
 			foreach ($this->nav['xml']->{$this->lang['active']}->$menu->children() as $navitem) {
 				$attr = $this->getMenuItemAttributes($navitem);
-				$nav[$i] = $attr;
+				$nav[$attr['id']] = $attr;
 				if ($navitem->count()) {
-					$nav[$i]['sub'] = [];
+					$nav[$attr['id']]['sub'] = [];
 					foreach ($navitem->children() as $navitem) {
 						$attr = $this->getMenuItemAttributes($navitem);
-						$nav[$i]['sub'][] = $attr;
+						$nav[$attr['id']]['sub'][] = $attr;
 					}
 				}
-				$i++;
 			}
 		} else if ($menu === 'lang') {
 			foreach ($this->lang['list'] as $lang) {
@@ -168,12 +175,12 @@ class YAMS {
 					$navitem = $this->nav['xml']->xpath('//'.$lang.'//item[@id="'.strval($this->page['id']).'"]');
 					if (!empty($navitem)) {
 						$attr = $this->getMenuItemAttributes($navitem[0], $lang);
-						$nav[$i] = $attr;
+						$nav[$attr['id']] = $attr;
 					}
 				} else {
 					$active = ($lang === $this->lang['active']) ? true : false;
-					$nav[$i] = [
-						'label' => $lang,
+					$nav[$attr['id']] = [
+						'title' => $lang,
 						'href' => $lang,
 						'active' => $active
 					];
@@ -197,12 +204,12 @@ class YAMS {
 		if ($menu !== 'lang') {
 			foreach ($this->nav['xml']->{$this->lang['active']}->$menu->children() as $navitem) {
 				$attr = $this->getMenuItemAttributes($navitem);
-				$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['label'].'</a>';
+				$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['title'].'</a>';
 				if ($navitem->count()) {
 					$nav .= '<ul>';
 					foreach ($navitem->children() as $navitem) {
 						$attr = $this->getMenuItemAttributes($navitem);
-						$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['label'].'</a></li>';
+						$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['title'].'</a></li>';
 					}
 					$nav .= '</ul>';
 				}
@@ -215,7 +222,7 @@ class YAMS {
 					$navitem = $this->nav['xml']->xpath('//'.$lang.'//item[@id="'.strval($this->page['id']).'"]');
 					if (!empty($navitem)) {
 						$attr = $this->getMenuItemAttributes($navitem[0], $lang);
-						$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['label'].'</a></li>';
+						$nav .= '<li'.$attr['class'].'><a href="'.$attr['href'].'">'.$attr['title'].'</a></li>';
 					}
 				} else {
 					$class = ($lang === $this->lang['active']) ? ' class="active"' : '';
@@ -228,6 +235,19 @@ class YAMS {
 		
 		return $nav;
 		
+	}
+	
+	/*
+	* @param int $id
+	* @return string
+	*/	
+	public function getPageUrl($id) {
+		$navitem = $this->nav['xml']->xpath('//item[@id="'.$id.'"]');
+		if ($navitem) {
+			$pageUrl = $navitem[0]['href']->__toString();
+			return $pageUrl;
+		}
+		return '';
 	}
 	
 	

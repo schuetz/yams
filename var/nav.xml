@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nav>
+	
+	<de>
+		<main>
+			<item id="1" href="unternehmen" title="Unternehmen">
+				<item id="2" href="unternehmen/ueber-uns" title="Über uns"/>
+				<item id="3" href="unternehmen/historie" title="Historie"/>
+			</item>
+			<item id="4" href="kontakt" title="Kontakt"/>
+		</main>
+		<footer>
+			<item id="4" href="kontakt" title="Kontakt"/>
+			<item id="6" href="impressum" title="Impressum"/>
+		</footer>
+	</de>
+	
+		
+</nav>
