@@ -31,7 +31,8 @@ class YAMS {
 	
 	public function __construct($options = null) {
 		
-		$this->host = 'http://'.$_SERVER['HTTP_HOST'];
+		$this->protocol = ($_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+		$this->host = $this->protocol . '://' . $_SERVER['HTTP_HOST'];
 		$this->path = dirname($_SERVER['PHP_SELF']);
 		
 		if ($this->path !== '/') $this->path .= '/';
